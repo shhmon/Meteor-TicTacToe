@@ -1,0 +1,41 @@
+/* CSS declarations go here */
+@import url(https://fonts.googleapis.com/css?family=Lato);
+
+
+
+.center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#playfield {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  left: 50%;
+  top: 50%;
+  outline: solid 3px;
+  font-size: 0;
+
+  transform: translate(-50%, -50%);
+}
+
+.box {
+  position: relative;
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  width: 200px;
+  height: 200px;
+  outline: solid 1px;
+}
+
+.box > p {
+  font-family: 'Lato';
+  top: -150px;
+  left: 40px;
+  position: absolute;
+  font-size: 150px;
+}

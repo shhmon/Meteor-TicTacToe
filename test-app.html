@@ -1,0 +1,45 @@
+<head>
+  <title>Tic Tac Toe</title>
+</head>
+
+<body>
+  <div class="{{#if currentUser}} {{else}} center {{/if}}"> 
+    {{> loginButtons}}
+  </div>
+  {{#if currentUser}}
+    {{#if roomJoined}}
+      {{> room}}
+    {{else}}
+      {{> joinRoom}}
+    {{/if}}
+  {{/if}}
+</body>
+
+<template name="joinRoom">
+  <form name="roomForm">
+    <input type="text" placeholder="Enter the room id">
+    <input type="submit" id="action" value="default">
+  </form>
+</template>
+
+<template name="room">
+  <h1>Room: {{roomNumber}}</h1>
+  {{> playField}}
+  <form>
+    <input type="submit" id="leave" value="Leave room">
+  </form>
+</template>
+
+<template name="playField">
+  <div id="playfield">
+    <div class="box" id="1"><p>{{sign}}</p></div>
+    <div class="box" id="2"><p>{{sign}}</p></div>
+    <div class="box" id="3"><p>{{sign}}</p></div>
+    <div class="box" id="4"><p>{{sign}}</p></div>
+    <div class="box" id="5"><p>{{sign}}</p></div>
+    <div class="box" id="6"><p>{{sign}}</p></div>
+    <div class="box" id="7"><p>{{sign}}</p></div>
+    <div class="box" id="8"><p>{{sign}}</p></div>
+    <div class="box" id="9"><p>{{sign}}</p></div>
+  </div>
+</template>
