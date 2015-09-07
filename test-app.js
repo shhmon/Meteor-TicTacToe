@@ -3,7 +3,7 @@ Rooms = new Mongo.Collection("rooms");
 
 if (Meteor.isClient) {
 
-  Session.set("roomNumber", undefined);
+  Session.set("roomNumber", undefined); // the user's current room
 
   Template.body.helpers({
     "roomJoined": function() {
@@ -21,7 +21,6 @@ if (Meteor.isClient) {
 
       event.preventDefault();
       roomNumber = parseInt($('[type="text"]').val());
-      console.log(roomNumber);
 
       if ( Rooms.findOne({ roomNumber: roomNumber }) ) {
         joinRoom(roomNumber);
@@ -33,12 +32,12 @@ if (Meteor.isClient) {
 
       console.log("input");
       roomId = parseInt($('[type="text"]').val());
-      
+
       if ( Rooms.findOne({ roomNumber: roomId })) {
         // if room found
         $('#action').attr("value", "Join Room");
       } else {
-        // if not found 
+        // if not found
         $('#action').attr("value", "Create Room");
       }
     }
@@ -78,17 +77,23 @@ if (Meteor.isClient) {
   function createRoom(roomNumber) {
     console.log("creating room - " + roomNumber);
     // Tiles "dictionaryn" ska vara den som styr alla fält på spelplanen. Innehållet ska visas i respektive ruta
-    Rooms.insert({ roomNumber: roomNumber, players: 1, tiles: {1: "X", 2: "X", 3: "O", 4: "", 5: "", 6: "", 7: "", 8: "", 9: ""}});
+    Rooms.insert({
+      roomNumber: roomNumber,
+      players: 1,
+      tiles: {1: "X", 2: "X", 3: "O", 4: "", 5: "", 6: "", 7: "", 8: "", 9: ""}
+    });
     Session.set("roomNumber", roomNumber);
   }
 
   function leaveRoom() {
     if (Session.get("roomNumber")) {
       Rooms.update(String(Rooms.findOne({ roomNumber: Session.get("roomNumber")})._id), {$inc: {players: -1} });
+
       if (Rooms.findOne({ roomNumber: Session.get("roomNumber") }).players == 0) {
+        // if no users left in room --> remove room
         Rooms.remove(String(Rooms.findOne({ roomNumber: Session.get("roomNumber") })._id));
       }
-      Session.set("roomNumber", undefined)
+      Session.set("roomNumber", undefined);
     }
   }
 
