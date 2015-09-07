@@ -1,7 +1,8 @@
-/* CSS declarations go here */
 @import url(https://fonts.googleapis.com/css?family=Lato);
 
-
+body {
+  font-size: 20px;
+}
 
 .center {
   position: absolute;
@@ -12,13 +13,12 @@
 
 #playfield {
   position: absolute;
-  width: 600px;
-  height: 600px;
+  width: 30rem;
+  height: 30rem;
   left: 50%;
   top: 50%;
   outline: solid 3px;
   font-size: 0;
-
   transform: translate(-50%, -50%);
 }
 
@@ -27,8 +27,8 @@
   display: inline-block;
   margin: 0;
   padding: 0;
-  width: 200px;
-  height: 200px;
+  width: 10rem;
+  height: 10rem;
   outline: solid 1px;
 }
 
