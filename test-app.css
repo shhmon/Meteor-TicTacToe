@@ -26,16 +26,18 @@ body {
   position: relative;
   display: inline-block;
   margin: 0;
-  padding: 0;
+  padding: 0px;
   width: 10rem;
   height: 10rem;
   outline: solid 1px;
 }
 
+
 .box > p {
   font-family: 'Lato';
-  top: -150px;
-  left: 40px;
+  top: -165px;
+  left: 50%;
   position: absolute;
   font-size: 150px;
+  transform: translateX(-50%);
 }

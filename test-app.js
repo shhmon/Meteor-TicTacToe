@@ -3,8 +3,6 @@ Rooms = new Mongo.Collection("rooms");
 
 if (Meteor.isClient) {
 
-  Session.set("roomNumber", undefined); // the user's current room
-
   Template.body.helpers({
     "roomJoined": function() {
       if (Session.get("roomNumber") !== undefined) {
@@ -31,9 +29,9 @@ if (Meteor.isClient) {
     "input form": function(event) {
 
       console.log("input");
-      roomId = parseInt($('[type="text"]').val());
+      roomNumber = parseInt($('[type="text"]').val());
 
-      if ( Rooms.findOne({ roomNumber: roomId })) {
+      if ( Rooms.findOne({ roomNumber: roomNumber })) {
         // if room found
         $('#action').attr("value", "Join Room");
       } else {
@@ -56,40 +54,63 @@ if (Meteor.isClient) {
   });
 
   Template.playField.helpers({
-    sign: function() {
-      // Slutade här, kan inte få detta att funka, $(this) verkar inte selecta det jag tror det gör... Dock selectar det något, kan man se om man kör console.log($(this))
-      console.log($(this).parent().attr("id"));
-      return Rooms.findOne({ roomNumber: Session.get("roomNumber") }).tiles[$(this).parent().attr("id")];
+    "sign": function(id) {
+      // Return the sign in the current box in playfield
+      return Rooms.findOne({ roomNumber: Session.get("roomNumber") }).tiles[id];
     }
   });
 
+  Template.playField.events({
+    "click .box": function(event) {
+      var box = $(event.target);
+      var id = box.attr("id");
+      console.log(id);
+
+      /*if (player1 has clicked on a field) {
+        var sign = "X";
+      } else {
+        var sign = "O";
+      }*/
+      var sign = "X";
+
+      // use Meteor.userId()
+      // array med spelares unika ID:n
+      // kolla längd på Room.players-array --> istället för värde på Room.players-integer
+
+      // insert på id 2 varje klick --> TODO: fixa så den sätter in på dynamiskt id oavsett box man klickar i
+      Rooms.update(Rooms.findOne({ roomNumber: Session.get("roomNumber") })._id,
+        {$set: {tiles: {2: sign} }
+      });
+
+    }
+  });
 
   function joinRoom(roomNumber) {
     if (Rooms.findOne({ roomNumber: roomNumber }).players < 2){
       Session.set("roomNumber", roomNumber);
       console.log("joining room - " + roomNumber);
-      Rooms.update(String(Rooms.findOne({ roomNumber: Session.get("roomNumber")})._id), {$inc: {players: 1} });
+      Rooms.update( Rooms.findOne({ roomNumber: Session.get("roomNumber") })._id, {$inc: {players: 1} });
     } else {
-      window.alert("room is full");
+      window.alert("Room is full");
     }
   }
 
   function createRoom(roomNumber) {
     console.log("creating room - " + roomNumber);
-    // Tiles "dictionaryn" ska vara den som styr alla fält på spelplanen. Innehållet ska visas i respektive ruta
+
     Rooms.insert({
       roomNumber: roomNumber,
       players: 1,
-      tiles: {1: "X", 2: "X", 3: "O", 4: "", 5: "", 6: "", 7: "", 8: "", 9: ""}
+      tiles: {1: "", 2: "", 3: "", 4: "", 5: "", 6: "", 7: "", 8: "", 9: ""}
     });
     Session.set("roomNumber", roomNumber);
   }
 
   function leaveRoom() {
     if (Session.get("roomNumber")) {
-      Rooms.update(String(Rooms.findOne({ roomNumber: Session.get("roomNumber")})._id), {$inc: {players: -1} });
+      Rooms.update( Rooms.findOne({ roomNumber: Session.get("roomNumber") })._id, {$inc: {players: -1} });
 
-      if (Rooms.findOne({ roomNumber: Session.get("roomNumber") }).players == 0) {
+      if (Rooms.findOne({ roomNumber: Session.get("roomNumber") }).players === 0) {
         // if no users left in room --> remove room
         Rooms.remove(String(Rooms.findOne({ roomNumber: Session.get("roomNumber") })._id));
       }
