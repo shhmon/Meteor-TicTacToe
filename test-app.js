@@ -66,6 +66,7 @@ if (Meteor.isClient) {
 
   Template.room.events({
     "click #leave": function(event) {
+      event.preventDefault();
       leaveRoom();
     }
   });
@@ -106,6 +107,7 @@ if (Meteor.isClient) {
     if (Rooms.findOne({ roomNumber: roomNumber }).players.length < 2){
       Session.set("roomNumber", roomNumber);
       console.log("joining room - " + roomNumber);
+      // add ID of current logged in user to the room
       Rooms.update( Rooms.findOne({ roomNumber: Session.get("roomNumber") })._id, {$push: {players: Meteor.userId()} });
     } else {
       window.alert("Room is full");
@@ -129,7 +131,7 @@ if (Meteor.isClient) {
 
       if (Rooms.findOne({ roomNumber: Session.get("roomNumber") }).players.length === 0) {
         // if no users left in room --> remove room
-        Rooms.remove(String(Rooms.findOne({ roomNumber: Session.get("roomNumber") })._id));
+        Rooms.remove( Rooms.findOne({ roomNumber: Session.get("roomNumber") })._id);
       }
       Session.set("roomNumber", undefined);
     }
@@ -140,5 +142,3 @@ if (Meteor.isClient) {
   });
 
 }
-
-/*Rooms.remove(String(Rooms.findOne({ roomNumber: Session.get("roomNumber")})._id));*/
