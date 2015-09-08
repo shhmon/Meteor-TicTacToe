@@ -50,13 +50,17 @@ if (Meteor.isClient) {
       return Session.get("roomNumber");
     },
     "players": function() {
-      var players = Rooms.findOne({ roomNumber: Session.get("roomNumber") }).players;
-      var playernames = [];
-      for (var i = 0; i < players.length; i++) {
-        playernames.push(Meteor.users.findOne({ _id:players[i] }).username);
+      // gather info about players in current room
+      var playerIds = Rooms.findOne({ roomNumber: Session.get("roomNumber") }).players;
+      var playerData = [];
+
+      for (var i = 0; i < playerIds.length; i++) {
+        playerData.push({ // add an object with data about each player
+          username: Meteor.users.findOne( playerIds[i] ).username,
+          playerNumber: i+1
+        });
       }
-      return playernames;
-      console.log(players);
+      return playerData; // array with objects
     }
   });
 

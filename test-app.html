@@ -24,8 +24,13 @@
 
 <template name="room">
   <h1>Room: {{roomNumber}}</h1>
+
+  {{#each players}}
+    <p>Player {{playerNumber}}: {{username}}</p>
+  {{/each}}
+
   {{> playField}}
-  <p>Players: {{players}}</p>
+
   <form>
     <input type="submit" id="leave" value="Leave room">
   </form>
