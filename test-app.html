@@ -16,15 +16,16 @@
 </body>
 
 <template name="joinRoom">
-  <form name="roomForm">
+  <form name="roomForm" class="center">
     <input type="text" placeholder="Enter the room id">
-    <input type="submit" id="action" value="default">
+    <input type="submit" id="action" value="ok">
   </form>
 </template>
 
 <template name="room">
   <h1>Room: {{roomNumber}}</h1>
   {{> playField}}
+  <p>Players: {{players}}</p>
   <form>
     <input type="submit" id="leave" value="Leave room">
   </form>

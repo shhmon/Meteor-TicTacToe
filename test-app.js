@@ -53,9 +53,10 @@ if (Meteor.isClient) {
       var players = Rooms.findOne({ roomNumber: Session.get("roomNumber") }).players;
       var playernames = [];
       for (var i = 0; i < players.length; i++) {
-        playernames.push(Meteor.user({ _id:players[i] }).username);
+        playernames.push(Meteor.users.findOne({ _id:players[i] }).username);
       }
       return playernames;
+      console.log(players);
     }
   });
 
