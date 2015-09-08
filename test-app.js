@@ -3,6 +3,10 @@ Rooms = new Mongo.Collection("rooms");
 
 if (Meteor.isClient) {
 
+  Accounts.ui.config({
+    passwordSignupFields: "USERNAME_ONLY"
+  });
+
   Template.body.helpers({
     "roomJoined": function() {
       if (Session.get("roomNumber") !== undefined) {
@@ -44,6 +48,14 @@ if (Meteor.isClient) {
   Template.room.helpers({
     "roomNumber": function() {
       return Session.get("roomNumber");
+    },
+    "players": function() {
+      var players = Rooms.findOne({ roomNumber: Session.get("roomNumber") }).players;
+      var playernames = [];
+      for (var i = 0; i < players.length; i++) {
+        playernames.push(Meteor.user({ _id:players[i] }).username);
+      }
+      return playernames;
     }
   });
 
@@ -86,10 +98,10 @@ if (Meteor.isClient) {
   });
 
   function joinRoom(roomNumber) {
-    if (Rooms.findOne({ roomNumber: roomNumber }).players < 2){
+    if (Rooms.findOne({ roomNumber: roomNumber }).players.length < 2){
       Session.set("roomNumber", roomNumber);
       console.log("joining room - " + roomNumber);
-      Rooms.update( Rooms.findOne({ roomNumber: Session.get("roomNumber") })._id, {$inc: {players: 1} });
+      Rooms.update( Rooms.findOne({ roomNumber: Session.get("roomNumber") })._id, {$push: {players: Meteor.userId()} });
     } else {
       window.alert("Room is full");
     }
@@ -100,7 +112,7 @@ if (Meteor.isClient) {
 
     Rooms.insert({
       roomNumber: roomNumber,
-      players: 1,
+      players: [Meteor.userId()],
       tiles: {1: "", 2: "", 3: "", 4: "", 5: "", 6: "", 7: "", 8: "", 9: ""}
     });
     Session.set("roomNumber", roomNumber);
@@ -108,9 +120,9 @@ if (Meteor.isClient) {
 
   function leaveRoom() {
     if (Session.get("roomNumber")) {
-      Rooms.update( Rooms.findOne({ roomNumber: Session.get("roomNumber") })._id, {$inc: {players: -1} });
+      Rooms.update( Rooms.findOne({ roomNumber: Session.get("roomNumber") })._id, {$pull: {players: Meteor.userId()} });
 
-      if (Rooms.findOne({ roomNumber: Session.get("roomNumber") }).players === 0) {
+      if (Rooms.findOne({ roomNumber: Session.get("roomNumber") }).players.length === 0) {
         // if no users left in room --> remove room
         Rooms.remove(String(Rooms.findOne({ roomNumber: Session.get("roomNumber") })._id));
       }
