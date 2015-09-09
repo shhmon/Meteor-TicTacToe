@@ -88,3 +88,7 @@ input {
   font-size: 15px;
   padding: 0 5px;
 }
+
+.disabled {
+  opacity: 0.5;
+}

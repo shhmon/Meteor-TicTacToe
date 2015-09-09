@@ -22,7 +22,7 @@ if (Meteor.isClient) {
     "submit form": function (event){
 
       event.preventDefault();
-      roomNumber = parseInt($('[type="text"]').val());
+      var roomNumber = parseInt($('[type="text"]').val());
 
       if ( Rooms.findOne({ roomNumber: roomNumber }) ) {
         joinRoom(roomNumber);
@@ -31,18 +31,27 @@ if (Meteor.isClient) {
       }
     },
     "input form": function(event) {
+      // Triggered while user is entering a Room-ID.
+      // Changes UI depending on if entered Room-ID is valid or not
+      var roomNumber = parseInt($('[type="text"]').val());
+      var submitBtn = $('#action');
 
-      console.log("input");
-      roomNumber = parseInt($('[type="text"]').val());
+      if ( isNaN(roomNumber) ) { // if input is a valid Room-ID
+        submitBtn.attr('disabled', true);
+        submitBtn.addClass('disabled');
 
-      if ( Rooms.findOne({ roomNumber: roomNumber })) {
-        // if room found
-        $('#action').attr("value", "Join Room");
-      } else if (!roomNumber) {
-        $('#action').attr("value", "Submit");
       } else {
-        // if not found
-        $('#action').attr("value", "Create Room");
+
+        if ( submitBtn.attr('disabled') === 'disabled' ) {
+          submitBtn.attr('disabled', false);
+          submitBtn.removeClass('disabled');
+        }
+
+        if ( Rooms.findOne({ roomNumber: roomNumber }) ) {  // if Room-ID exists
+          submitBtn.attr("value", "Join Room");
+        } else {
+          submitBtn.attr("value", "Create Room");      // if Room-ID not yet created
+        }
       }
     }
   });
