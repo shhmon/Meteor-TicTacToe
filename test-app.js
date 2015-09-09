@@ -1,6 +1,10 @@
 
 Rooms = new Mongo.Collection("rooms");
-
+/* this collection stores all necessary info about game rooms
+ * roomNumber --> Integer to identify Rooms
+ * tiles      --> Object with a "boxId: sign"-pair for each box on playField
+ * players    --> Array of playerIds for players that are in the Room
+              --> players[0] = player 1 ("X")  |||  players[1] = player 2 ("O") */
 if (Meteor.isClient) {
 
   Accounts.ui.config({
@@ -91,26 +95,21 @@ if (Meteor.isClient) {
 
   Template.playField.events({
     "click .box": function(event) {
+      // handle player moves --> add the active player's sign to the box
       var box = $(event.target);
       var id = box.attr("id");
-      console.log(id);
+      var room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });
 
-      /*if (player1 has clicked on a field) {
-        var sign = "X";
+      if ( room.players[0] === Meteor.userId() ) {
+        var sign = "X";   // Room.players[0] = player 1 --> "X"
       } else {
-        var sign = "O";
-      }*/
-      var sign = "X";
+        var sign = "O";   // Room.players[1] = player 2 --> "O"
+      }
 
-      // use Meteor.userId()
-      // array med spelares unika ID:n
-      // kolla längd på Room.players-array --> istället för värde på Room.players-integer
-
-      // insert på id 2 varje klick --> TODO: fixa så den sätter in på dynamiskt id oavsett box man klickar i
-      Rooms.update(Rooms.findOne({ roomNumber: Session.get("roomNumber") })._id,
-        {$set: {tiles: {2: sign} }
-      });
-
+      var query = {$set: {} };
+      query.$set["tiles." + id] = sign; // this assignment allows the use of variables as keys, which we need
+      // using a sting as a key allows us to go several layers into objects at once
+      Rooms.update(Rooms.findOne({ roomNumber: Session.get("roomNumber") })._id, query );
     }
   });
 
