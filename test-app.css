@@ -2,6 +2,8 @@
 
 body {
   font-size: 20px;
+  font-family: 'Lato';
+  background: #f2f2f2;
 }
 
 .center {
@@ -40,4 +42,49 @@ body {
   position: absolute;
   font-size: 150px;
   transform: translateX(-50%);
+}
+
+
+
+
+
+form {
+  padding: 50px;
+  /*background: #ffd93e;*/
+}
+
+
+input {
+  top: 0;
+  margin: 0;
+  padding: 0;
+  vertical-align: top;
+  font-family: 'Lato';
+}
+
+.btn {
+  font-family: 'Lato';
+  font-size: 15px;
+  text-transform: uppercase;
+
+  border-radius: 0px;
+  border-style: none;
+  border: none;
+
+  padding: 7px 10px;
+  margin-left: -6px;
+
+  background: #5bb3a4;
+  color: #f2f2f2;
+
+  transition: all 0.2s;
+}
+.btn:hover {
+  cursor: pointer;
+  background: #72e5d1;
+}
+.tin {
+  height: 28px;
+  font-size: 15px;
+  padding: 0 5px;
 }

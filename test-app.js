@@ -38,6 +38,8 @@ if (Meteor.isClient) {
       if ( Rooms.findOne({ roomNumber: roomNumber })) {
         // if room found
         $('#action').attr("value", "Join Room");
+      } else if (!roomNumber) {
+        $('#action').attr("value", "Submit");
       } else {
         // if not found
         $('#action').attr("value", "Create Room");
