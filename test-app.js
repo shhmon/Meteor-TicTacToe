@@ -9,6 +9,7 @@ if (Meteor.isClient) {
 
   Template.body.helpers({
     "roomJoined": function() {
+      // checks if player is in a room
       if (Session.get("roomNumber") !== undefined) {
         return true;
       }
@@ -31,16 +32,15 @@ if (Meteor.isClient) {
       }
     },
     "input form": function(event) {
-      // Triggered while user is entering a Room-ID.
-      // Changes UI depending on if entered Room-ID is valid or not
+      // Changes the UI depending on if the Room-ID entered is valid or not
       var roomNumber = parseInt($('[type="text"]').val());
       var submitBtn = $('#action');
 
-      if ( isNaN(roomNumber) ) { // if input is a valid Room-ID
+      if ( isNaN(roomNumber) ) { // if input isn't a valid Room-ID
         submitBtn.attr('disabled', true);
         submitBtn.addClass('disabled');
 
-      } else {
+      } else {  // input is valid
 
         if ( submitBtn.attr('disabled') === 'disabled' ) {
           submitBtn.attr('disabled', false);
