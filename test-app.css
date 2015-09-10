@@ -92,3 +92,10 @@ input {
 .disabled {
   opacity: 0.5;
 }
+
+.text-top {
+  position: absolute;
+  top: 3%;
+  left: 48%;
+  font-size: 2rem;
+}

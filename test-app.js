@@ -86,6 +86,14 @@ if (Meteor.isClient) {
     }
   });
 
+  Template.currentPlayer.helpers({
+    "getCurrentPlayer": function() {
+      var room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });
+      var currentPlayer = Meteor.users.findOne(room.players[ room.currentPlayer ]);
+      return currentPlayer.username;
+    }
+  });
+
   Template.playField.helpers({
     "sign": function(id) {
       // Return the sign in the current box in playfield
@@ -101,7 +109,7 @@ if (Meteor.isClient) {
       var room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });
 
       // only let the player who's next in turn modify the board
-      if ( room.players[room.nextTurn] === Meteor.userId() ) {
+      if ( room.players[room.currentPlayer] === Meteor.userId() ) {
 
         // use correct sign
         if ( room.players[0] === Meteor.userId() ) {
@@ -111,17 +119,17 @@ if (Meteor.isClient) {
         }
 
         // change turn to allow next player to make a move
-        console.log("current turn - " + room.nextTurn);
-        if (room.nextTurn === 0) {
-          var nextTurn = 1;
+        console.log("current turn - " + room.currentPlayer);
+        if (room.currentPlayer === 0) {
+          var currentPlayer = 1;
         } else {
-          var nextTurn = 0;
+          var currentPlayer = 0;
         }
-        console.log("next turn - " + room.nextTurn);
+        console.log("next turn - " + room.currentPlayer);
 
         // add player's move to the database
         var query = {$set: {} };
-        query.$set["nextTurn"] = nextTurn;
+        query.$set["currentPlayer"] = currentPlayer;
         query.$set["tiles." + id] = sign; // this assignment allows the use of variables as keys, which we need
         // using a sting as a key allows us to go several layers into objects at once
         Rooms.update(Rooms.findOne({ roomNumber: Session.get("roomNumber") })._id, query );
@@ -152,7 +160,7 @@ if (Meteor.isClient) {
       roomNumber: roomNumber,
       players: [Meteor.userId()],
       tiles: {1: "", 2: "", 3: "", 4: "", 5: "", 6: "", 7: "", 8: "", 9: ""},
-      nextTurn: 0 // 0 --> player 1, first in players-array. 1 --> player 2, second players-in array
+      currentPlayer: 0 // 0 --> player 1, first in players-array. 1 --> player 2, second players-in array
     });
     Session.set("roomNumber", roomNumber);
   }

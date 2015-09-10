@@ -17,7 +17,7 @@
 
 <template name="joinRoom">
   <form name="roomForm" class="center">
-    <input class="tin" type="text" placeholder="Enter the Room ID">
+    <input class="tin" type="text" placeholder="Enter the Room ID" autofocus>
     <input class="btn" type="submit" id="action" value="SUBMIT">
   </form>
 </template>
@@ -28,6 +28,8 @@
   {{#each players}}
     <p>Player {{playerNumber}}: {{username}}</p>
   {{/each}}
+
+  {{> currentPlayer}}
 
   {{> playField}}
 
@@ -48,4 +50,8 @@
     <div class="box" id="8"><p> {{sign  '8'}} </p></div>
     <div class="box" id="9"><p> {{sign  '9'}} </p></div>
   </div>
+</template>
+
+<template name="currentPlayer">
+  <p class="text-top">{{getCurrentPlayer}}'s turn</p>
 </template>
