@@ -87,10 +87,15 @@ if (Meteor.isClient) {
   });
 
   Template.currentPlayer.helpers({
+    // return a string with the currentPlayer
     "getCurrentPlayer": function() {
       var room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });
       var currentPlayer = Meteor.users.findOne(room.players[ room.currentPlayer ]);
-      return currentPlayer.username;
+
+      if ( currentPlayer._id === Meteor.userId() ) {
+        return "Your turn";
+      }
+      return currentPlayer.username + "'s turn"
     }
   });
 

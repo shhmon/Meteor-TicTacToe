@@ -49,10 +49,13 @@ body {
 
 
 form {
-  padding: 50px;
+  padding: 30px;
   /*background: #ffd93e;*/
 }
 
+# leave {
+  padding-left: 0;
+}
 
 input {
   top: 0;
@@ -96,6 +99,6 @@ input {
 .text-top {
   position: absolute;
   top: 3%;
-  left: 48%;
+  left: 40%;
   font-size: 2rem;
 }
