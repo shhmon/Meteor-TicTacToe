@@ -110,7 +110,7 @@ if (Meteor.isClient) {
     "click .box": function(event) {
       // handle player moves --> add the active player's sign to the box
       var box = $(event.target);
-      var id = box.attr("id");
+      var boxId = box.attr("id");
       var room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });
 
       // only let the player who's next in turn modify the board
@@ -124,23 +124,21 @@ if (Meteor.isClient) {
         }
 
         // change turn to allow next player to make a move
-        console.log("current turn - " + room.currentPlayer);
         if (room.currentPlayer === 0) {
           var currentPlayer = 1;
         } else {
           var currentPlayer = 0;
         }
-        console.log("next turn - " + room.currentPlayer);
 
         // add player's move to the database
         var query = {$set: {} };
         query.$set["currentPlayer"] = currentPlayer;
-        query.$set["tiles." + id] = sign; // this assignment allows the use of variables as keys, which we need
+        query.$set["tiles." + boxId] = sign; // this assignment allows the use of variables as keys, which we need
         // using a sting as a key allows us to go several layers into objects at once
-        Rooms.update(Rooms.findOne({ roomNumber: Session.get("roomNumber") })._id, query );
+        Rooms.update(room._id, query);
 
       } else {  // player who cicked is not allowed to play
-        console.log("wait for your turn!");
+        window.alert("Wait for your turn!");
       }
 
 
@@ -148,11 +146,13 @@ if (Meteor.isClient) {
   });
 
   function joinRoom(roomNumber) {
-    if (Rooms.findOne({ roomNumber: roomNumber }).players.length < 2){
+    var room = Rooms.findOne({ roomNumber: roomNumber });
+
+    if (room.players.length < 2) {
       Session.set("roomNumber", roomNumber);
       console.log("joining room - " + roomNumber);
       // add ID of current logged in user to the room
-      Rooms.update( Rooms.findOne({ roomNumber: Session.get("roomNumber") })._id, {$push: {players: Meteor.userId()} });
+      Rooms.update( room._id, {$push: {players: Meteor.userId()} });
     } else {
       window.alert("Room is full");
     }
@@ -172,11 +172,13 @@ if (Meteor.isClient) {
 
   function leaveRoom() {
     if (Session.get("roomNumber")) {
-      Rooms.update( Rooms.findOne({ roomNumber: Session.get("roomNumber") })._id, {$pull: {players: Meteor.userId()} });
+      var room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });
+      Rooms.update( room._id, {$pull: {players: Meteor.userId()} });
+      room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });  // update var room
 
-      if (Rooms.findOne({ roomNumber: Session.get("roomNumber") }).players.length === 0) {
-        // if no users left in room --> remove room
-        Rooms.remove( Rooms.findOne({ roomNumber: Session.get("roomNumber") })._id);
+      if (room.players.length === 0) {
+        console.log("remving room - " + room.roomNumber);
+        Rooms.remove( room._id );
       }
       Session.set("roomNumber", undefined);
     }
