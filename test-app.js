@@ -169,7 +169,9 @@ if (Meteor.isClient) {
       roomNumber: roomNumber,
       players: [Meteor.userId()],
       tiles: {1: "", 2: "", 3: "", 4: "", 5: "", 6: "", 7: "", 8: "", 9: ""},
-      currentPlayer: 0 // 0 --> player 1, first in players-array. 1 --> player 2, second players-in array
+      currentPlayer: Math.round(Math.random())
+      // will result in:
+      // 0 --> player 1, first in players-array. 1 --> player 2, second players-in array
     });
     Session.set("roomNumber", roomNumber);
   }
