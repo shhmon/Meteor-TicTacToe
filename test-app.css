@@ -19,8 +19,9 @@ body {
   height: 30rem;
   left: 50%;
   top: 50%;
-  outline: solid 3px;
+  border: solid 3px;
   font-size: 0;
+  overflow: hidden;
   transform: translate(-50%, -50%);
 }
 
@@ -41,6 +42,7 @@ body {
   left: 50%;
   position: absolute;
   font-size: 150px;
+  color: #5bb3a4;
   transform: translateX(-50%);
 }
 
@@ -51,10 +53,6 @@ body {
 form {
   padding: 30px;
   /*background: #ffd93e;*/
-}
-
-# leave {
-  padding-left: 0;
 }
 
 input {
