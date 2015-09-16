@@ -116,26 +116,30 @@ if (Meteor.isClient) {
       // only let the player who's next in turn modify the board
       if ( room.players[room.currentPlayer] === Meteor.userId() ) {
 
-        // use correct sign
-        if ( room.players[0] === Meteor.userId() ) {
-          var sign = "X";   // Room.players[0] = player 1 --> "X"
-        } else {
-          var sign = "O";   // Room.players[1] = player 2 --> "O"
-        }
+        // check if sign already in box clicked
+        if ( room.tiles[boxId] === "" ) {
 
-        // change turn to allow next player to make a move
-        if (room.currentPlayer === 0) {
-          var currentPlayer = 1;
-        } else {
-          var currentPlayer = 0;
-        }
+          // use correct sign
+          if ( room.players[0] === Meteor.userId() ) {
+            var sign = "X";   // Room.players[0] = player 1 --> "X"
+          } else {
+            var sign = "O";   // Room.players[1] = player 2 --> "O"
+          }
 
-        // add player's move to the database
-        var query = {$set: {} };
-        query.$set["currentPlayer"] = currentPlayer;
-        query.$set["tiles." + boxId] = sign; // this assignment allows the use of variables as keys, which we need
-        // using a sting as a key allows us to go several layers into objects at once
-        Rooms.update(room._id, query);
+          // change turn to allow next player to make a move
+          if (room.currentPlayer === 0) {
+            var currentPlayer = 1;
+          } else {
+            var currentPlayer = 0;
+          }
+
+          // add player's move to the database
+          var query = {$set: {} };
+          query.$set["currentPlayer"] = currentPlayer;
+          query.$set["tiles." + boxId] = sign; // this assignment allows the use of variables as keys, which we need
+          // using a sting as a key allows us to go several layers into objects at once
+          Rooms.update(room._id, query);
+        }
 
       } else {  // player who cicked is not allowed to play
         window.alert("Wait for your turn!");
