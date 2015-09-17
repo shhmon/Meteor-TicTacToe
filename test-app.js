@@ -29,10 +29,13 @@ if (Meteor.isClient) {
       event.preventDefault();
       var roomNumber = parseInt($('[type="text"]').val());
 
-      if ( Rooms.findOne({ roomNumber: roomNumber }) ) {
-        joinRoom(roomNumber);
-      } else {
-        createRoom(roomNumber);
+      if (roomNumber !== "") {
+        // only execute when we get some kind of input
+        if ( Rooms.findOne({ roomNumber: roomNumber }) ) {
+          joinRoom(roomNumber);
+        } else {
+          createRoom(roomNumber);
+        }
       }
     },
     "input form": function(event) {
