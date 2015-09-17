@@ -76,6 +76,12 @@ if (Meteor.isClient) {
         });
       }
       return playerData; // array with objects
+    },
+    "gameIsOver": function() {
+      var room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });
+      console.log("winner: " + room.winner);
+      console.log(room.tiles);
+      return room.winner;
     }
   });
 
@@ -87,8 +93,8 @@ if (Meteor.isClient) {
   });
 
   Template.currentPlayer.helpers({
-    // return a string with the currentPlayer
     "getCurrentPlayer": function() {
+      // return a string with the currentPlayer
       var room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });
       var currentPlayer = Meteor.users.findOne(room.players[ room.currentPlayer ]);
 
@@ -139,13 +145,36 @@ if (Meteor.isClient) {
           query.$set["tiles." + boxId] = sign; // this assignment allows the use of variables as keys, which we need
           // using a sting as a key allows us to go several layers into objects at once
           Rooms.update(room._id, query);
+
+          // check if the game is over
+          checkWin(sign);
         }
 
       } else {  // player who cicked is not allowed to play
         window.alert("Wait for your turn!");
       }
+    }
+  });
 
+  Template.endGame.helpers({
+    "getWinnerName": function() {
+      var room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });
+      return room.winner + " has won!";
+    }
+  });
 
+  Template.endGame.events({
+    "click #newGame": function(event) {
+      // resets the game in current room and allow players to begin next round.
+      event.preventDefault();
+
+      var room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });
+      // reset data in current room
+      Rooms.update( room._id, {$set: {
+        tiles: {1: "", 2: "", 3: "", 4: "", 5: "", 6: "", 7: "", 8: "", 9: ""},
+        winner: undefined
+      }});
+      console.log("starting new game in room - " + room.roomNumber);
     }
   });
 
@@ -169,9 +198,10 @@ if (Meteor.isClient) {
       roomNumber: roomNumber,
       players: [Meteor.userId()],
       tiles: {1: "", 2: "", 3: "", 4: "", 5: "", 6: "", 7: "", 8: "", 9: ""},
-      currentPlayer: Math.round(Math.random())
-      // will result in:
+      currentPlayer: Math.round(Math.random()),
+      // currentPlayer will result in:
       // 0 --> player 1, first in players-array. 1 --> player 2, second players-in array
+      winner: undefined
     });
     Session.set("roomNumber", roomNumber);
   }
@@ -188,6 +218,61 @@ if (Meteor.isClient) {
       }
       Session.set("roomNumber", undefined);
     }
+  }
+
+  function checkWin(sign) {
+    // decide if the game has ended. triggered on every player-move
+    var room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });
+
+    // check for win in each row
+    if (room.tiles["1"] === sign &&  // row 1
+        room.tiles["2"] === sign &&
+        room.tiles["3"] === sign ||
+        room.tiles["4"] === sign &&  // row 2
+        room.tiles["5"] === sign &&
+        room.tiles["6"] === sign ||
+        room.tiles["7"] === sign &&  // row 3
+        room.tiles["8"] === sign &&
+        room.tiles["9"] === sign) {
+      gameOver(sign);
+    }
+
+    // check for win in each column
+    if (room.tiles["1"] === sign && // col 1
+        room.tiles["4"] === sign &&
+        room.tiles["7"] === sign ||
+        room.tiles["2"] === sign && // col 2
+        room.tiles["5"] === sign &&
+        room.tiles["8"] === sign ||
+        room.tiles["3"] === sign && // col 3
+        room.tiles["6"] === sign &&
+        room.tiles["9"] === sign) {
+      gameOver(sign);
+    }
+
+    // check for win in diagonals
+    if (room.tiles["1"] === sign && // diag 1
+        room.tiles["5"] === sign &&
+        room.tiles["9"] === sign ||
+        room.tiles["3"] === sign && // diag 2
+        room.tiles["5"] === sign &&
+        room.tiles["7"] === sign) {
+      gameOver(sign);
+    }
+  }
+
+  function gameOver(sign) {
+    // triggered when someone makes a winning move
+    var room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });
+
+    if (sign === "X") {   // if player 1
+      winnerName = Meteor.users.findOne(room.players[0]).username;
+    } else {              // if player 2
+      winnerName = Meteor.users.findOne(room.players[1]).username;
+    }
+
+    // set the currentRoom.winner
+    Rooms.update( room._id, {$set: {winner: winnerName} });
   }
 
   window.addEventListener('beforeunload', function(e) {

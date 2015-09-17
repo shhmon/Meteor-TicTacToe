@@ -109,3 +109,11 @@ input {
   left: 40%;
   font-size: 2rem;
 }
+
+.endgame {
+  background-color: #bcbcbc;
+  font-size: 2rem;
+  position: absolute;
+  top: 40%;
+  left: 40%;
+}
