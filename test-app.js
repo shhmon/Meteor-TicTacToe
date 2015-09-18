@@ -1,10 +1,12 @@
 
 Rooms = new Mongo.Collection("rooms");
 /* this collection stores all necessary info about game rooms
- * roomNumber --> Integer to identify Rooms
- * tiles      --> Object with a "boxId: sign"-pair for each box on playField
- * players    --> Array of playerIds for players that are in the Room
-              --> players[0] = player 1 ("X")  |||  players[1] = player 2 ("O") */
+ * roomNumber    --> Integer to identify Rooms
+ * tiles         --> Object with a "boxId: sign"-pair for each box on playField
+ * players       --> Array of playerIds for players that are in the Room
+                 --> players[0] = player 1 ("X")  |||  players[1] = player 2 ("O")
+ * currentPlayer --> Integer used as a index to access the current player from players
+ * winner        --> String of the current round's winner's username */
 if (Meteor.isClient) {
 
   Accounts.ui.config({
@@ -69,22 +71,27 @@ if (Meteor.isClient) {
     },
     "players": function() {
       // gather info about players in current room
-      var playerIds = Rooms.findOne({ roomNumber: Session.get("roomNumber") }).players;
-      var playerData = [];
+      var room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });
 
-      for (var i = 0; i < playerIds.length; i++) {
-        playerData.push({ // add an object with data about each player
-          username: Meteor.users.findOne( playerIds[i] ).username,
-          playerNumber: i+1
-        });
+      if (room) { // limits the template to only render if there's actual content
+        var playerIds = room.players;
+        var playerData = [];
+
+        for (var i = 0; i < playerIds.length; i++) {
+          playerData.push({ // add an object with data about each player
+            username: Meteor.users.findOne( playerIds[i] ).username,
+            playerNumber: i+1
+          });
+        }
+        return playerData; // array with objects
       }
-      return playerData; // array with objects
     },
     "gameIsOver": function() {
       var room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });
-      console.log("winner: " + room.winner);
-      console.log(room.tiles);
-      return room.winner;
+
+      if (room) { // limits the template to only render if there's actual content
+        return room.winner;
+      }
     }
   });
 
@@ -99,19 +106,32 @@ if (Meteor.isClient) {
     "getCurrentPlayer": function() {
       // return a string with the currentPlayer
       var room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });
-      var currentPlayer = Meteor.users.findOne(room.players[ room.currentPlayer ]);
 
-      if ( currentPlayer._id === Meteor.userId() ) {
-        return "Your turn";
+      if (room) {  // limits the template to only render when there's actual content
+        var currentPlayer = Meteor.users.findOne({ _id: room.players[room.currentPlayer] });
+
+        // only necessary if room has 2 players
+        if (room.players.length === 2) {
+          if ( currentPlayer._id === Meteor.userId() ) {
+            return "Your turn";
+          }
+          return currentPlayer.username + "'s turn"
+        } else {
+          return "Waiting for another player"
+        }
+
       }
-      return currentPlayer.username + "'s turn"
+
     }
   });
 
   Template.playField.helpers({
     "sign": function(id) {
       // Return the sign in the current box in playfield
-      return Rooms.findOne({ roomNumber: Session.get("roomNumber") }).tiles[id];
+      var room = Rooms.findOne({roomNumber: Session.get("roomNumber") });
+      if (room) { // limits the template to only render playField if there's actual content
+        return Rooms.findOne({ roomNumber: Session.get("roomNumber") }).tiles[id];
+      }
     }
   });
 
@@ -122,39 +142,43 @@ if (Meteor.isClient) {
       var boxId = box.attr("id");
       var room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });
 
-      // only let the player who's next in turn modify the board
-      if ( room.players[room.currentPlayer] === Meteor.userId() ) {
+      // prevent users from playing if the game is over
+      if (!room.winner) {
 
-        // check if sign already in box clicked
-        if ( room.tiles[boxId] === "" ) {
+        // only let the player who's next in turn modify the board
+        if ( room.players[room.currentPlayer] === Meteor.userId() ) {
 
-          // use correct sign
-          if ( room.players[0] === Meteor.userId() ) {
-            var sign = "X";   // Room.players[0] = player 1 --> "X"
-          } else {
-            var sign = "O";   // Room.players[1] = player 2 --> "O"
+          // check if sign already in box clicked
+          if ( room.tiles[boxId] === "" ) {
+
+            // use correct sign
+            if ( room.players[0] === Meteor.userId() ) {
+              var sign = "X";   // Room.players[0] = player 1 --> "X"
+            } else {
+              var sign = "O";   // Room.players[1] = player 2 --> "O"
+            }
+
+            // change turn to allow next player to make a move
+            if (room.currentPlayer === 0) {
+              var currentPlayer = 1;
+            } else {
+              var currentPlayer = 0;
+            }
+
+            // add player's move to the database
+            var query = {$set: {} };
+            query.$set["currentPlayer"] = currentPlayer;
+            query.$set["tiles." + boxId] = sign; // this assignment allows the use of variables as keys, which we need
+            // using a sting as a key allows us to go several layers into objects at once
+            Rooms.update(room._id, query);
+
+            // check if the game is over
+            checkWin(sign);
           }
 
-          // change turn to allow next player to make a move
-          if (room.currentPlayer === 0) {
-            var currentPlayer = 1;
-          } else {
-            var currentPlayer = 0;
-          }
-
-          // add player's move to the database
-          var query = {$set: {} };
-          query.$set["currentPlayer"] = currentPlayer;
-          query.$set["tiles." + boxId] = sign; // this assignment allows the use of variables as keys, which we need
-          // using a sting as a key allows us to go several layers into objects at once
-          Rooms.update(room._id, query);
-
-          // check if the game is over
-          checkWin(sign);
+        } else {  // player who cicked is not allowed to play
+          window.alert("Wait for your turn!");
         }
-
-      } else {  // player who cicked is not allowed to play
-        window.alert("Wait for your turn!");
       }
     }
   });
@@ -174,6 +198,7 @@ if (Meteor.isClient) {
       var room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });
       // reset data in current room
       Rooms.update( room._id, {$set: {
+        currentPlayer: Math.round(Math.random()),
         tiles: {1: "", 2: "", 3: "", 4: "", 5: "", 6: "", 7: "", 8: "", 9: ""},
         winner: undefined
       }});
@@ -216,7 +241,7 @@ if (Meteor.isClient) {
       room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });  // update var room
 
       if (room.players.length === 0) {
-        console.log("remving room - " + room.roomNumber);
+        console.log("removing room - " + room.roomNumber);
         Rooms.remove( room._id );
       }
       Session.set("roomNumber", undefined);
@@ -275,7 +300,9 @@ if (Meteor.isClient) {
     }
 
     // set the currentRoom.winner
+    console.log(room);
     Rooms.update( room._id, {$set: {winner: winnerName} });
+    console.log(Rooms.findOne({ roomNumber: Session.get("roomNumber") }));
   }
 
   window.addEventListener('beforeunload', function(e) {
