@@ -29,7 +29,7 @@ if (Meteor.isClient) {
       event.preventDefault();
       var roomNumber = parseInt($('[type="text"]').val());
 
-      if (roomNumber !== "") {
+      if ( !isNaN(roomNumber) ) {
         // only execute when we get some kind of input
         if ( Rooms.findOne({ roomNumber: roomNumber }) ) {
           joinRoom(roomNumber);
