@@ -80,7 +80,7 @@ if (Meteor.isClient) {
         for (var i = 0; i < playerIds.length; i++) {
           playerData.push({ // add an object with data about each player
             username: Meteor.users.findOne( playerIds[i] ).username,
-            playerNumber: i+1
+            playerNumber: i + 1
           });
         }
         return playerData; // array with objects
@@ -200,7 +200,7 @@ if (Meteor.isClient) {
       Rooms.update( room._id, {$set: {
         currentPlayer: Math.round(Math.random()),
         tiles: {1: "", 2: "", 3: "", 4: "", 5: "", 6: "", 7: "", 8: "", 9: ""},
-        winner: undefined
+        winner: ""
       }});
       console.log("starting new game in room - " + room.roomNumber);
     }
@@ -229,7 +229,7 @@ if (Meteor.isClient) {
       currentPlayer: Math.round(Math.random()),
       // currentPlayer will result in:
       // 0 --> player 1, first in players-array. 1 --> player 2, second players-in array
-      winner: undefined
+      winner: ""
     });
     Session.set("roomNumber", roomNumber);
   }
@@ -299,10 +299,8 @@ if (Meteor.isClient) {
       winnerName = Meteor.users.findOne(room.players[1]).username;
     }
 
-    // set the currentRoom.winner
-    console.log(room);
+    // set room.winner
     Rooms.update( room._id, {$set: {winner: winnerName} });
-    console.log(Rooms.findOne({ roomNumber: Session.get("roomNumber") }));
   }
 
   window.addEventListener('beforeunload', function(e) {
