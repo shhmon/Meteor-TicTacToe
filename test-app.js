@@ -6,7 +6,9 @@ Rooms = new Mongo.Collection("rooms");
  * players       --> Array of playerIds for players that are in the Room
                  --> players[0] = player 1 ("X")  |||  players[1] = player 2 ("O")
  * currentPlayer --> Integer used as a index to access the current player from players
- * winner        --> String of the current round's winner's username */
+ * winner        --> String of the current round's winner's username
+ * moveCount     --> Integer of how many moves the players have made
+ */
 if (Meteor.isClient) {
 
   Accounts.ui.config({
@@ -119,9 +121,7 @@ if (Meteor.isClient) {
         } else {
           return "Waiting for another player"
         }
-
       }
-
     }
   });
 
@@ -143,7 +143,7 @@ if (Meteor.isClient) {
       var room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });
 
       // prevent users from playing if the game is over
-      if (!room.winner) {
+      if ( !room.winner && room.moveCount < 9) {
 
         // only let the player who's next in turn modify the board
         if ( room.players[room.currentPlayer] === Meteor.userId() ) {
@@ -166,7 +166,8 @@ if (Meteor.isClient) {
             }
 
             // add player's move to the database
-            var query = {$set: {} };
+            var query = { $set: {}, $inc: {} };
+            query.$inc["moveCount"] = 1;  // increment with 1
             query.$set["currentPlayer"] = currentPlayer;
             query.$set["tiles." + boxId] = sign; // this assignment allows the use of variables as keys, which we need
             // using a sting as a key allows us to go several layers into objects at once
@@ -174,6 +175,7 @@ if (Meteor.isClient) {
 
             // check if the game is over
             checkWin(sign);
+            checkDraw();
           }
 
         } else {  // player who cicked is not allowed to play
@@ -184,9 +186,13 @@ if (Meteor.isClient) {
   });
 
   Template.endGame.helpers({
-    "getWinnerName": function() {
+    "getEndgameMsg": function() {
       var room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });
-      return room.winner + " has won!";
+      if (room.winner !== "draw") {
+        return room.winner + " has won!";
+      } else {
+        return "The game is draw!";
+      }
     }
   });
 
@@ -200,7 +206,8 @@ if (Meteor.isClient) {
       Rooms.update( room._id, {$set: {
         currentPlayer: Math.round(Math.random()),
         tiles: {1: "", 2: "", 3: "", 4: "", 5: "", 6: "", 7: "", 8: "", 9: ""},
-        winner: ""
+        winner: "",
+        moveCount: 0
       }});
       console.log("starting new game in room - " + room.roomNumber);
     }
@@ -229,7 +236,8 @@ if (Meteor.isClient) {
       currentPlayer: Math.round(Math.random()),
       // currentPlayer will result in:
       // 0 --> player 1, first in players-array. 1 --> player 2, second players-in array
-      winner: ""
+      winner: "",
+      moveCount: 0
     });
     Session.set("roomNumber", roomNumber);
   }
@@ -266,40 +274,53 @@ if (Meteor.isClient) {
     }
 
     // check for win in each column
-    if (room.tiles["1"] === sign && // col 1
-        room.tiles["4"] === sign &&
-        room.tiles["7"] === sign ||
-        room.tiles["2"] === sign && // col 2
-        room.tiles["5"] === sign &&
-        room.tiles["8"] === sign ||
-        room.tiles["3"] === sign && // col 3
-        room.tiles["6"] === sign &&
-        room.tiles["9"] === sign) {
+    else if (room.tiles["1"] === sign && // col 1
+             room.tiles["4"] === sign &&
+             room.tiles["7"] === sign ||
+             room.tiles["2"] === sign && // col 2
+             room.tiles["5"] === sign &&
+             room.tiles["8"] === sign ||
+             room.tiles["3"] === sign && // col 3
+             room.tiles["6"] === sign &&
+             room.tiles["9"] === sign) {
       gameOver(sign);
     }
 
     // check for win in diagonals
-    if (room.tiles["1"] === sign && // diag 1
-        room.tiles["5"] === sign &&
-        room.tiles["9"] === sign ||
-        room.tiles["3"] === sign && // diag 2
-        room.tiles["5"] === sign &&
-        room.tiles["7"] === sign) {
+    else if (room.tiles["1"] === sign && // diag 1
+             room.tiles["5"] === sign &&
+             room.tiles["9"] === sign ||
+             room.tiles["3"] === sign && // diag 2
+             room.tiles["5"] === sign &&
+             room.tiles["7"] === sign) {
       gameOver(sign);
     }
   }
 
-  function gameOver(sign) {
-    // triggered when someone makes a winning move
+  function checkDraw() {
+    room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });
+    if ( room.moveCount === 9 ) {
+      gameOver("draw");
+    }
+  }
+
+  function gameOver(gameResult) {
+    // triggered when someone makes a winning move or when a game ends draw
     var room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });
 
-    if (sign === "X") {   // if player 1
+    if (gameResult === "X") {   // if player 1
       winnerName = Meteor.users.findOne(room.players[0]).username;
-    } else {              // if player 2
+
+    } else if (gameResult === "O") {  // if player 2
       winnerName = Meteor.users.findOne(room.players[1]).username;
+
+    } else if (gameResult === "draw") {
+      winnerName = "draw";
     }
 
-    // set room.winner
+    // give a value to room.winner
+    // this triggers the Template.room-helper "gameIsOver" tht in turn will update
+    // the UI to show the endGame-templates
     Rooms.update( room._id, {$set: {winner: winnerName} });
   }
 
