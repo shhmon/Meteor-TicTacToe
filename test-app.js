@@ -26,6 +26,63 @@ if (Meteor.isClient) {
       }
     }
   });
+  Template.loginRegister.events({
+    'submit .login': function(event) {
+        event.preventDefault();
+        var username = event.target.username.value;
+        var password = event.target.password.value;
+
+        Meteor.loginWithPassword(username, password, function(error){
+            if (error) {
+              $('.message').addClass("show");
+            } else {
+              $('.message').removeClass("show");
+            }
+        });
+    },
+    'submit .register': function(event) {
+        event.preventDefault();
+        var username = event.target.username.value;
+        var password = event.target.password.value;
+
+        Accounts.createUser({username: username, password: password}, function(error) {
+          if (error) {
+            $("#error").addClass("show");
+          } else {
+            $("#success").addClass("show");
+          }
+        });
+    },
+    'click .switch': function(event) {
+        event.preventDefault();
+        if ($(".login").hasClass("show")) {
+          $(".login").removeClass("show");
+          $(".register").addClass("show")
+        } else {
+          $(".register").removeClass("show");
+          $(".login").addClass("show")
+        }
+    }
+  });
+  Template.accountMenu.events({
+    'click .signOut': function(event) {
+        event.preventDefault();
+        leaveRoom()
+        Meteor.logout();
+    },
+    'click .leaveRoom': function (event) {
+        event.preventDefault();
+        leaveRoom();
+    }
+  });
+  Template.accountMenu.helpers({
+    "inRoom": function() {
+      if (Session.get("roomNumber")) {
+        return true;
+      }
+    }
+  });
+
 
   Template.joinRoom.events({
     "submit form": function (event){
@@ -94,13 +151,6 @@ if (Meteor.isClient) {
       if (room) { // limits the template to only render if there's actual content
         return room.winner;
       }
-    }
-  });
-
-  Template.room.events({
-    "click #leave": function(event) {
-      event.preventDefault();
-      leaveRoom();
     }
   });
 

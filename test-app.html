@@ -1,28 +1,61 @@
 <head>
   <title>Tic Tac Toe</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 </head>
 
 <body>
-  <div class="{{#if currentUser}} {{else}} center {{/if}}">
-    {{> loginButtons}}
-  </div>
   {{#if currentUser}}
     {{#if roomJoined}}
       {{> room}}
     {{else}}
       {{> joinRoom}}
     {{/if}}
+  {{else}}
+    {{> loginRegister}}
   {{/if}}
+  {{> footer}}
 </body>
 
 <template name="joinRoom">
-  <form name="roomForm" class="center">
-    <input class="tin" type="text" placeholder="Enter the Room ID" autofocus>
-    <input class="btn" type="submit" id="action" value="SUBMIT">
+  {{> accountMenu}}
+  <form class="center genericForm">
+    <h2>Join or create a room</h2>
+    <input class="valInput fixSize" type="text" placeholder="Room ID" autofocus>
+    <input class="btn fixSize" type="submit" id="action" value="Submit">
   </form>
 </template>
 
+
+<template name="loginRegister">
+  <form class="login show center genericForm">
+    <h1>Meteor TicTacToe</h1>
+    <input class="valInput fixSize" type="text" name="username" placeholder="Username" value=""><br>
+    <input class="valInput fixSize" type="password" name="password" placeholder="Password" value=""><br>
+    <input class="btn fixSize" type="submit" name="login" value="Login"><br>
+    <div class="message">Something went wrong, please try again.</div>
+    <p>Don't have any account? <span class="switch">Sign up!</span></p>
+  </form>
+  <form class="register center genericForm">
+    <h2>Register an account</h2>
+    <input class="valInput fixSize" type="text" name="username" placeholder="Username" value=""><br>
+    <input class="valInput fixSize" type="password" name="password" placeholder="Password" value=""><br>
+    <input class="btn fixSize" type="submit" name="login" value="Register"><br>
+    <div id="success" class="message">Your account has been created, you can now login.</div>
+    <div id="error" class="message">Something's not right, try again</div>
+    <p>Already have an account? <span class="switch">Login here!</span></p>
+  </form>
+</template>
+
+<template name="accountMenu">
+  <div class="menu">
+    <div class="cat signOut"><i class="fa fa-sign-out"></i> Sign out</div>
+    {{#if inRoom}}<div class="cat leaveRoom"><i class="fa fa-level-down"></i>  Leave room</div>{{/if}}
+  </div>
+</template>
+
+
 <template name="room">
+  {{> accountMenu}}
   <h1>Room: {{roomNumber}}</h1>
 
   {{#each players}}
@@ -36,10 +69,6 @@
   {{/if}}
 
   {{> playField}}
-
-  <form>
-    <input class="btn" type="submit" id="leave" value="Leave room">
-  </form>
 </template>
 
 <template name="playField">
@@ -67,4 +96,10 @@
       <input class="btn" type="submit" id="newGame" value="Start New Game">
     </form>
   </div>
+</template>
+
+<template name="footer">
+  <footer class="fixSize">
+    App by Szymon Stypa &amp; Samuel Plumppu
+  </footer>
 </template>
