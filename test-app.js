@@ -44,14 +44,19 @@ if (Meteor.isClient) {
         event.preventDefault();
         var username = event.target.username.value;
         var password = event.target.password.value;
+        var password2 = event.target.password2.value;
 
-        Accounts.createUser({username: username, password: password}, function(error) {
-          if (error) {
-            $("#error").addClass("show");
-          } else {
-            $("#success").addClass("show");
-          }
-        });
+        if (password == password2) {
+          Accounts.createUser({username: username, password: password}, function(error) {
+            if (error) {
+              $("#error").addClass("show");
+            } else {
+              $("#success").addClass("show");
+            }
+          });
+        } else {
+          $("#error2").addClass("show");
+        }
     },
     'click .switch': function(event) {
         event.preventDefault();
@@ -144,6 +149,16 @@ if (Meteor.isClient) {
         }
         return playerData; // array with objects
       }
+    }
+  });
+
+  Template.playField.helpers({
+    "sign": function(id) {
+      // Return the sign in the current box in playfield
+      var room = Rooms.findOne({roomNumber: Session.get("roomNumber") });
+      if (room) { // limits the template to only render playField if there's actual content
+        return Rooms.findOne({ roomNumber: Session.get("roomNumber") }).tiles[id];
+      }
     },
     "gameIsOver": function() {
       var room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });
@@ -151,10 +166,15 @@ if (Meteor.isClient) {
       if (room) { // limits the template to only render if there's actual content
         return room.winner;
       }
-    }
-  });
-
-  Template.currentPlayer.helpers({
+    },
+    "getEndgameMsg": function() {
+      var room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });
+      if (room.winner !== "draw") {
+        return room.winner + " has won!";
+      } else {
+        return "The game is draw!";
+      }
+    },
     "getCurrentPlayer": function() {
       // return a string with the currentPlayer
       var room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });
@@ -171,16 +191,6 @@ if (Meteor.isClient) {
         } else {
           return "Waiting for another player"
         }
-      }
-    }
-  });
-
-  Template.playField.helpers({
-    "sign": function(id) {
-      // Return the sign in the current box in playfield
-      var room = Rooms.findOne({roomNumber: Session.get("roomNumber") });
-      if (room) { // limits the template to only render playField if there's actual content
-        return Rooms.findOne({ roomNumber: Session.get("roomNumber") }).tiles[id];
       }
     }
   });
@@ -232,21 +242,7 @@ if (Meteor.isClient) {
           window.alert("Wait for your turn!");
         }
       }
-    }
-  });
-
-  Template.endGame.helpers({
-    "getEndgameMsg": function() {
-      var room = Rooms.findOne({ roomNumber: Session.get("roomNumber") });
-      if (room.winner !== "draw") {
-        return room.winner + " has won!";
-      } else {
-        return "The game is draw!";
-      }
-    }
-  });
-
-  Template.endGame.events({
+    },
     "click #newGame": function(event) {
       // resets the game in current room and allow players to begin next round.
       event.preventDefault();

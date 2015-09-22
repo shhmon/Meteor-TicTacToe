@@ -4,6 +4,7 @@ body {
   font-size: 20px;
   font-family: 'Lato';
   background: #f2f2f2;
+  color: #444;
 }
 .noselect {
     -webkit-touch-callout: none;
@@ -22,6 +23,9 @@ body {
 .show {
   display: block !important;
 }
+.disabled {
+  opacity: 0.5;
+}
 .fixSize {
   -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
   -moz-box-sizing: border-box;    /* Firefox, other Gecko */
@@ -35,9 +39,6 @@ body {
   text-align: center;
   width: 300px;
 }
-.genericForm > h1, h2, h3, h4 {
-  color: #444;
-}
 .genericForm > input {
   position: relative;
   padding: 0;
@@ -50,7 +51,6 @@ body {
 }
 .genericForm > p {
   font-size: 14px;
-  color: #444;
 }
 .genericForm > p > span {
   color: #66b2ff;
@@ -67,7 +67,7 @@ body {
   box-shadow: 0 0 4px #72e5d1;
 }
 .btn {
-  background: #5dc29c;
+  background: #68DCB0;
   color: #f2f2f2;
   font-family: 'Lato';
   font-size: 15px;
@@ -89,6 +89,19 @@ body {
 }
 
 
+.menu {
+  padding-bottom: 8px;
+}
+.cat {
+  margin: 0 10px;
+  font-size: 18px;
+  display: inline-block;
+}
+.cat:hover {
+    color: #72e5d1;
+  cursor: pointer;
+}
+
 
 
 
@@ -96,15 +109,13 @@ body {
 
 
 #playfield {
-  position: absolute;
+  position: relative;
   width: 30rem;
   height: 30rem;
-  left: 52%;
-  top: 50%;
-  border: solid 3px;
+  margin: 0 auto;
+  border-radius: 10px;
   font-size: 0;
   overflow: hidden;
-  transform: translate(-50%, -50%);
 }
 
 .box {
@@ -114,62 +125,47 @@ body {
   padding: 0px;
   width: 10rem;
   height: 10rem;
-  outline: solid 1px;
-}
-
-
-.menu {
-}
-.cat {
-  margin: 0 10px;
-  font-size: 18px;
-  color: #444;
-  display: inline-block;
-}
-.cat:hover {
-  color: #5dc29c;
-  cursor: pointer;
+  outline: solid 1px #ddd;
+  background: #f7f7f7;
 }
 
 .box > p {
-  font-family: 'Lato';
   top: -165px;
   left: 50%;
   position: absolute;
   font-size: 150px;
-  color: #5bb3a4;
+  color: #68DCB0;
   transform: translateX(-50%);
+  text-shadow: 3px 3px 0 #ccc;
+}
+
+
+.roomContainer {
+  text-align: center;
+}
+.roomInfo {
+  position: absolute;
+  text-align: left;
+  left: 10%;
+  top: 40%;
+  transform: translate(-50%, -50%);
+}
+.roomInfo > h2 {
+  padding: 10px 30px 10px 10px;
+  border-bottom: solid 1px #68DCB0;
+  margin-bottom: -10px;
+}
+.roomInfo > p {
+  margin-left: 10px;
+  line-height: 16px;
 }
 
 
 
-
-
-
-.disabled {
-  opacity: 0.5;
-}
 
 .text-top {
-  position: absolute;
-  top: 3%;
-  left: 43%;
-  font-size: 2rem;
-}
-
-.endgame {
-  background-color: #bcbcbc;
-  font-size: 2rem;
-  height: 40px;
-  width: 161px;
-  margin-left: 0;
-}
-
-.endgame form {
-  margin-left: 10px;
-  margin: 0 auto;
-  padding-top: 4px;
-  padding-left: 10px;
+  position: relative;
+  margin: 40px;
 }
 
 

@@ -28,20 +28,22 @@
 
 <template name="loginRegister">
   <form class="login show center genericForm">
-    <h1>Meteor TicTacToe</h1>
+    <h1>Metor TicTacToe</h1>
     <input class="valInput fixSize" type="text" name="username" placeholder="Username" value=""><br>
     <input class="valInput fixSize" type="password" name="password" placeholder="Password" value=""><br>
     <input class="btn fixSize" type="submit" name="login" value="Login"><br>
     <div class="message">Something went wrong, please try again.</div>
-    <p>Don't have any account? <span class="switch">Sign up!</span></p>
+    <p>Don't have an account? <span class="switch">Sign up!</span></p>
   </form>
   <form class="register center genericForm">
     <h2>Register an account</h2>
     <input class="valInput fixSize" type="text" name="username" placeholder="Username" value=""><br>
     <input class="valInput fixSize" type="password" name="password" placeholder="Password" value=""><br>
+    <input class="valInput fixSize" type="password" name="password2" placeholder="Verify Password" value=""><br>
     <input class="btn fixSize" type="submit" name="login" value="Register"><br>
     <div id="success" class="message">Your account has been created, you can now login.</div>
     <div id="error" class="message">Something's not right, try again</div>
+    <div id="error2" class="message">Passwords do not match, try again</div>
     <p>Already have an account? <span class="switch">Login here!</span></p>
   </form>
 </template>
@@ -56,22 +58,21 @@
 
 <template name="room">
   {{> accountMenu}}
-  <h1>Room: {{roomNumber}}</h1>
+  <div class="roomContainer">
+    <div class="roomInfo">
+      <h2>Room: {{roomNumber}}</h2>
 
-  {{#each players}}
-    <p>Player {{playerNumber}}: {{username}}</p>
-  {{/each}}
+      {{#each players}}
+        <p>{{playerNumber}}. {{username}}</p>
+      {{/each}}
+    </div>
 
-  {{#if gameIsOver}}
-    {{> endGame}}
-  {{else}}
-    {{> currentPlayer}}
-  {{/if}}
-
-  {{> playField}}
+    {{> playField}}
+  </div>
 </template>
 
 <template name="playField">
+  <h2 class="text-top">{{#if gameIsOver}} {{getEndgameMsg}} {{else}} {{getCurrentPlayer}} {{/if}}</h2>
   <div id="playfield" class="noselect">
     <div class="box" id="1"><p> {{sign  '1'}} </p></div>
     <div class="box" id="2"><p> {{sign  '2'}} </p></div>
@@ -83,19 +84,11 @@
     <div class="box" id="8"><p> {{sign  '8'}} </p></div>
     <div class="box" id="9"><p> {{sign  '9'}} </p></div>
   </div>
-</template>
-
-<template name="currentPlayer">
-  <p class="text-top">{{getCurrentPlayer}}</p>
-</template>
-
-<template name="endGame">
-  <p class="text-top">{{getEndgameMsg}}</p>
-  <div class="endgame">
-    <form>
-      <input class="btn" type="submit" id="newGame" value="Start New Game">
-    </form>
-  </div>
+  {{#if gameIsOver}}
+  <form class="genericForm" style="position: relative; margin: 0 auto; margin-top: 20px;">
+    <input class="btn" type="submit" id="newGame" value="Start New Round">
+  </form>
+  {{/if}}
 </template>
 
 <template name="footer">
