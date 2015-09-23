@@ -9,6 +9,16 @@ Rooms = new Mongo.Collection("rooms");
  * winner        --> String of the current round's winner's username
  * moveCount     --> Integer of how many moves the players have made
  */
+
+ /* Uncomment to clear user and room database
+
+ if (Meteor.isServer){
+   Meteor.users.remove({});
+   Rooms.remove({});
+ }
+
+ */
+
 if (Meteor.isClient) {
 
   // Hide the dropdown menu if page is clicked anywhere
@@ -16,6 +26,7 @@ if (Meteor.isClient) {
       $('.accountOptionsDropdown').removeClass("show");
   });
 
+  // Use no email, just username and password
   Accounts.ui.config({
     passwordSignupFields: "USERNAME_ONLY"
   });
@@ -31,7 +42,10 @@ if (Meteor.isClient) {
       }
     }
   });
+
+  // Events for the login and register page
   Template.loginRegister.events({
+    // When submitting the login form
     'submit .login': function(event) {
         $('#msg-wentwrong').removeClass("show");
         event.preventDefault();
@@ -44,6 +58,7 @@ if (Meteor.isClient) {
             }
         });
     },
+    // When submitting the register form
     'submit .register': function(event) {
         $("#msg-notmatching2").removeClass("show");
         $("#msg-notright").removeClass("show");
@@ -64,6 +79,7 @@ if (Meteor.isClient) {
           $("#msg-notmatching2").addClass("show");
         }
     },
+    // Switch from viewing the login form to the register form by simply adding a "show" class
     'click .switch': function(event) {
         event.preventDefault();
         if ($(".login").hasClass("show")) {
@@ -75,21 +91,26 @@ if (Meteor.isClient) {
         }
     }
   });
+  // Events for the menu/header after logging in
   Template.accountMenu.events({
+    // Clicking the signout button
     'click .signOut': function(event) {
         event.preventDefault();
         leaveRoom()
         Meteor.logout();
     },
+    // Clicking the lobby button
     'click .goToLobby': function(event) {
         event.preventDefault();
         $('#joinRoom').addClass('show');
         $('#accountSettings').removeClass('show');
     },
+    // Clicking the leave room button
     'click .leaveRoom': function (event) {
         event.preventDefault();
         leaveRoom();
     },
+    // Clicking the right side button with your username on
     'click .accountOptions': function(event) {
       event.preventDefault();
       event.stopPropagation();
@@ -99,17 +120,20 @@ if (Meteor.isClient) {
         $('.accountOptionsDropdown').addClass('show');
       }
     },
+    // Clicking the sign out button in the username dropdown menu
     'click #signout': function(event) {
       event.preventDefault();
       leaveRoom()
       Meteor.logout();
     },
+    // Clicking the settings button in the username dropdown menu
     'click #settings': function(event) {
       event.preventDefault();
       $('#joinRoom').removeClass('show');
       $('#accountSettings').addClass('show');
     }
   });
+  // Helpers for the menu/header after logging in
   Template.accountMenu.helpers({
     "inRoom": function() {
       if (Session.get("roomNumber")) {
@@ -121,7 +145,7 @@ if (Meteor.isClient) {
     }
   });
 
-
+  // lobby helpers -> everything that is veiwed after you log in and before you join a room except the menu/header
   Template.lobby.events({
     "submit #joinRoom": function (event){
 
@@ -160,6 +184,7 @@ if (Meteor.isClient) {
         }
       }
     },
+    // Submitting the account settings form
     'submit #accountSettings': function(event) {
       // Function verifying that the passwords match and are not blank. Then Verifies that the current password is right and changes to new.
       event.preventDefault();
@@ -181,6 +206,7 @@ if (Meteor.isClient) {
         $('#msg-notmatching').addClass("show");
       }
     },
+    // Clicking the blue "link" that takes you back to the lobby
     'click #backToLobby': function(event) {
       event.preventDefault();
       $('#joinRoom').addClass('show');
@@ -188,6 +214,7 @@ if (Meteor.isClient) {
     }
   });
 
+  // Helpers for the room template
   Template.room.helpers({
     "roomNumber": function() {
       return Session.get("roomNumber");
@@ -211,6 +238,7 @@ if (Meteor.isClient) {
     }
   });
 
+  // Helpers for the playfield template
   Template.playField.helpers({
     "sign": function(id) {
       // Return the sign in the current box in playfield
@@ -254,6 +282,7 @@ if (Meteor.isClient) {
     }
   });
 
+  // Playfield template events
   Template.playField.events({
     "click .box": function(event) {
       // handle player moves --> add the active player's sign to the box
@@ -317,6 +346,8 @@ if (Meteor.isClient) {
       console.log("starting new game in room - " + room.roomNumber);
     }
   });
+
+// ---------------------------General functions-----------------------------
 
   function joinRoom(roomNumber) {
     var room = Rooms.findOne({ roomNumber: roomNumber });
@@ -434,12 +465,3 @@ if (Meteor.isClient) {
   });
 
 }
-
-/* Uncomment to clear user and room database
-
-if (Meteor.isServer){
-  Meteor.users.remove({});
-  Rooms.remove({});
-}
-
-*/
