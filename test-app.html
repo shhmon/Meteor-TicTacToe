@@ -8,7 +8,7 @@
     {{#if roomJoined}}
       {{> room}}
     {{else}}
-      {{> joinRoom}}
+      {{> lobby}}
     {{/if}}
   {{else}}
     {{> loginRegister}}
@@ -16,12 +16,23 @@
   {{> footer}}
 </body>
 
-<template name="joinRoom">
+<template name="lobby">
   {{> accountMenu}}
-  <form class="center genericForm">
+  <form class="center genericForm show" id="joinRoom">
     <h2>Join or create a room</h2>
     <input class="valInput fixSize" type="text" placeholder="Room ID" autofocus>
     <input class="btn fixSize" type="submit" id="action" value="Submit">
+  </form>
+  <form class="genericForm center" id="accountSettings">
+    <h2>Account settings</h2>
+    <input class="valInput fixSize" type="password" name="cpassword" placeholder="Current Password">
+    <input class="valInput fixSize" type="password" name="npassword" placeholder="New Password">
+    <input class="valInput fixSize" type="password" name="npassword2" placeholder="Verify New Password">
+    <input class="btn fixSize" type="submit" value="Save changes">
+    <p>Back to <span id="backToLobby">lobby</span></p>
+    <div class="success" id="msg-pchanged">Your password has been changed</div>
+    <div class="failure" id="msg-notmatching">The passwords do not match</div>
+    <div class="failure" id="msg-wrongpassword">Wrong password</div>
   </form>
 </template>
 
@@ -32,7 +43,7 @@
     <input class="valInput fixSize" type="text" name="username" placeholder="Username" value=""><br>
     <input class="valInput fixSize" type="password" name="password" placeholder="Password" value=""><br>
     <input class="btn fixSize" type="submit" name="login" value="Login"><br>
-    <div class="message">Something went wrong, please try again.</div>
+    <div class="failure" id="msg-wentwrong">Something went wrong, please try again.</div>
     <p>Don't have an account? <span class="switch">Sign up!</span></p>
   </form>
   <form class="register center genericForm">
@@ -41,9 +52,9 @@
     <input class="valInput fixSize" type="password" name="password" placeholder="Password" value=""><br>
     <input class="valInput fixSize" type="password" name="password2" placeholder="Verify Password" value=""><br>
     <input class="btn fixSize" type="submit" name="login" value="Register"><br>
-    <div id="success" class="message">Your account has been created, you can now login.</div>
-    <div id="error" class="message">Something's not right, try again</div>
-    <div id="error2" class="message">Passwords do not match, try again</div>
+    <div id="msg-accountcreated" class="success">Your account has been created, you can now login.</div>
+    <div id="msg-notright" class="failure">Something's not right, try again</div>
+    <div id="msg-notmatching2" class="failure">Passwords do not match, try again</div>
     <p>Already have an account? <span class="switch">Login here!</span></p>
   </form>
 </template>
@@ -51,7 +62,14 @@
 <template name="accountMenu">
   <div class="menu">
     <div class="cat signOut"><i class="fa fa-sign-out"></i> Sign out</div>
-    {{#if inRoom}}<div class="cat leaveRoom"><i class="fa fa-level-down"></i>  Leave room</div>{{/if}}
+    {{#if inRoom}}<div class="cat leaveRoom"><i class="fa fa-level-down"></i>  Leave room</div>
+    {{else}}<div class="cat goToLobby"><i class="fa fa-home"></i> Lobby</div>
+    {{/if}}
+    <div class="uname">Logged in as <span class="accountOptions">{{uname}} <i class="fa fa-chevron-circle-down"></i></span></div>
+  </div>
+  <div class="accountOptionsDropdown noselect">
+    <span class="noselect" id="settings"><i class="fa fa-cog"></i> Settings</span>
+    <span class="noselect" id="signout"><i class="fa fa-sign-out"></i> Sign out</span>
   </div>
 </template>
 

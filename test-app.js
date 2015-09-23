@@ -11,6 +11,11 @@ Rooms = new Mongo.Collection("rooms");
  */
 if (Meteor.isClient) {
 
+  // Hide the dropdown menu if page is clicked anywhere
+  $(document).click(function() {
+      $('.accountOptionsDropdown').removeClass("show");
+  });
+
   Accounts.ui.config({
     passwordSignupFields: "USERNAME_ONLY"
   });
@@ -28,19 +33,20 @@ if (Meteor.isClient) {
   });
   Template.loginRegister.events({
     'submit .login': function(event) {
+        $('#msg-wentwrong').removeClass("show");
         event.preventDefault();
         var username = event.target.username.value;
         var password = event.target.password.value;
 
         Meteor.loginWithPassword(username, password, function(error){
             if (error) {
-              $('.message').addClass("show");
-            } else {
-              $('.message').removeClass("show");
+              $('#msg-wentwrong').addClass("show");
             }
         });
     },
     'submit .register': function(event) {
+        $("#msg-notmatching2").removeClass("show");
+        $("#msg-notright").removeClass("show");
         event.preventDefault();
         var username = event.target.username.value;
         var password = event.target.password.value;
@@ -49,13 +55,13 @@ if (Meteor.isClient) {
         if (password == password2) {
           Accounts.createUser({username: username, password: password}, function(error) {
             if (error) {
-              $("#error").addClass("show");
+              $("#msg-notright").addClass("show");
             } else {
-              $("#success").addClass("show");
+              $("#msg-accoutcreated").addClass("show");
             }
           });
         } else {
-          $("#error2").addClass("show");
+          $("#msg-notmatching2").addClass("show");
         }
     },
     'click .switch': function(event) {
@@ -75,9 +81,33 @@ if (Meteor.isClient) {
         leaveRoom()
         Meteor.logout();
     },
+    'click .goToLobby': function(event) {
+        event.preventDefault();
+        $('#joinRoom').addClass('show');
+        $('#accountSettings').removeClass('show');
+    },
     'click .leaveRoom': function (event) {
         event.preventDefault();
         leaveRoom();
+    },
+    'click .accountOptions': function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      if ($('.accountOptionsDropdown').hasClass("show")) {
+        $('.accountOptionsDropdown').removeClass('show');
+      } else {
+        $('.accountOptionsDropdown').addClass('show');
+      }
+    },
+    'click #signout': function(event) {
+      event.preventDefault();
+      leaveRoom()
+      Meteor.logout();
+    },
+    'click #settings': function(event) {
+      event.preventDefault();
+      $('#joinRoom').removeClass('show');
+      $('#accountSettings').addClass('show');
     }
   });
   Template.accountMenu.helpers({
@@ -85,12 +115,15 @@ if (Meteor.isClient) {
       if (Session.get("roomNumber")) {
         return true;
       }
+    },
+    "uname": function() {
+      return Meteor.user().username;
     }
   });
 
 
-  Template.joinRoom.events({
-    "submit form": function (event){
+  Template.lobby.events({
+    "submit #joinRoom": function (event){
 
       event.preventDefault();
       var roomNumber = parseInt($('[type="text"]').val());
@@ -104,7 +137,7 @@ if (Meteor.isClient) {
         }
       }
     },
-    "input form": function(event) {
+    "input #joinRoom": function(event) {
       // Changes the UI depending on if the Room-ID entered is valid or not
       var roomNumber = parseInt($('[type="text"]').val());
       var submitBtn = $('#action');
@@ -126,6 +159,32 @@ if (Meteor.isClient) {
           submitBtn.attr("value", "Create Room");      // if Room-ID not yet created
         }
       }
+    },
+    'submit #accountSettings': function(event) {
+      // Function verifying that the passwords match and are not blank. Then Verifies that the current password is right and changes to new.
+      event.preventDefault();
+      $('#msg-wrongpassword').removeClass("show");
+      $('#msg-pchanged').removeClass("show");
+      $('#msg-notmatching').removeClass("show");
+      var cpass = event.target.cpassword.value;
+      var npass1 = event.target.npassword.value;
+      var npass2 = event.target.npassword2.value;
+      if (npass1 == npass2 && npass1 != "") {
+        Accounts.changePassword(cpass, npass1, function(error) {
+          if (!error) {
+            $('#msg-pchanged').addClass("show");
+          } else {
+            $('#msg-wrongpassword').addClass("show");
+          }
+        });
+      } else {
+        $('#msg-notmatching').addClass("show");
+      }
+    },
+    'click #backToLobby': function(event) {
+      event.preventDefault();
+      $('#joinRoom').addClass('show');
+      $('#accountSettings').removeClass('show');
     }
   });
 
@@ -375,3 +434,12 @@ if (Meteor.isClient) {
   });
 
 }
+
+/* Uncomment to clear user and room database
+
+if (Meteor.isServer){
+  Meteor.users.remove({});
+  Rooms.remove({});
+}
+
+*/

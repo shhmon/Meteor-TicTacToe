@@ -81,18 +81,21 @@ body {
 .btn:focus {
   outline: none !important;
 }
-.message {
+.failure, .success {
   color: #f95757;
   font-size: 15px;
   display: none;
   margin-bottom: -4px;
+}
+.success {
+  color: green !important;
 }
 
 
 .menu {
   padding-bottom: 8px;
 }
-.cat {
+.cat, .uname {
   margin: 0 10px;
   font-size: 18px;
   display: inline-block;
@@ -101,8 +104,46 @@ body {
     color: #72e5d1;
   cursor: pointer;
 }
+.uname {
+  position: absolute;
+  right: 0;
+}
+.accountOptions {
+  color: #68DCB0;
+}
+.accountOptions:hover {
+  cursor: pointer;
+  color: #72f5c4;
+}
+.accountOptionsDropdown {
+  position: absolute;
+  text-align: left;
+  background: #f6f6f6;
+  width: 100px;
+  border-radius: 5px;
+  right: 5px;
+  display: none;
+}
+.accountOptionsDropdown > span {
+  display: block;
+  font-size: 16px;
+  padding-left: 5px;
+  line-height: 30px;
+  border-bottom: solid 1px #eee;
+}
+.accountOptionsDropdown > span:hover {
+  background: #68DCB0;
+  color: #f2f2f2;
+  cursor: pointer;
+}
 
 
+#joinRoom {
+  display: none;
+}
+#accountSettings {
+  display: none;
+}
 
 
 
