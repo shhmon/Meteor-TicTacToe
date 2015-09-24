@@ -6,7 +6,7 @@
 <body>
   {{#if currentUser}}
     {{> accountMenu}}
-    {{#if roomJoined}}
+    {{#if inRoom}}
       {{> room}}
     {{else}}
       {{> lobby}}

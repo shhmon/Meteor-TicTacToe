@@ -32,13 +32,9 @@ if (Meteor.isClient) {
   });
 
   Template.body.helpers({
-    "roomJoined": function() {
-      // checks if player is in a room
-      if (Session.get("roomNumber") !== undefined) {
+    "inRoom": function() {
+      if (Session.get("roomNumber")) {
         return true;
-      }
-      else {
-        return false;
       }
     }
   });
@@ -135,11 +131,6 @@ if (Meteor.isClient) {
   });
   // Helpers for the menu/header after logging in
   Template.accountMenu.helpers({
-    "inRoom": function() {
-      if (Session.get("roomNumber")) {
-        return true;
-      }
-    },
     "uname": function() {
       return Meteor.user().username;
     }
