@@ -5,6 +5,7 @@
 
 <body>
   {{#if currentUser}}
+    {{> accountMenu}}
     {{#if roomJoined}}
       {{> room}}
     {{else}}
@@ -17,7 +18,6 @@
 </body>
 
 <template name="lobby">
-  {{> accountMenu}}
   <form class="center genericForm show" id="joinRoom">
     <h2>Join or create a room</h2>
     <input class="valInput fixSize" type="text" placeholder="Room ID" autofocus>
@@ -75,7 +75,6 @@
 
 
 <template name="room">
-  {{> accountMenu}}
   <div class="roomContainer">
     <div class="roomInfo">
       <h2>Room: {{roomNumber}}</h2>
